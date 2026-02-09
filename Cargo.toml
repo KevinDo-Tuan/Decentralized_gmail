@@ -1,0 +1,5 @@
+[workspace]
+members = [
+    "src/my_motoko_project_backend"
+]
+resolver = "2"
