@@ -181,14 +181,14 @@ body {
     box-shadow: var(--shadow-sm);
 }
 .btn-secondary {
-    background: white;
+    background: rgba(5, 119, 24, 0.712);
     color: var(--color-primary);
-    border: 2px solid var(--color-primary);
+    border: 3px solid var(--color-primary);
 }
 
 .btn-secondary:hover {
     background: var(--color-primary);
-    color: white;
+    color: oklab(69.451% -0.11407 -0.03018 / 0.459);
     transform: translateY(-3px);
 }
 .hero-title {
@@ -263,17 +263,6 @@ body {
     box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
 }
 
-.btn-secondary {
-    background: white;
-    color: var(--color-primary);
-    border: 2px solid var(--color-primary);
-}
-
-.btn-secondary:hover {
-    background: var(--color-primary);
-    color: white;
-    transform: translateY(-3px);
-}
 
 .scroll-indicator {
     position: absolute;
