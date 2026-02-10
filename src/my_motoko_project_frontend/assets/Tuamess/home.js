@@ -1,4 +1,4 @@
-import { AuthClient } from "https://esm.sh/@dfinity/auth-client";
+import { AuthClient } from "./auth-client.js";
 
 const II_URL = "https://identity.ic0.app";
 const MAX_TTL = BigInt(7 * 24 * 60 * 60 * 1_000_000_000);
@@ -16,6 +16,20 @@ const setStatus = (text) => {
     }
 };
 
+const getCanisterId = () => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("canisterId");
+};
+
+const goToMain = () => {
+    const canisterId = getCanisterId();
+    const url = new URL("/Tuamess/main.html", window.location.origin);
+    if (canisterId) {
+        url.searchParams.set("canisterId", canisterId);
+    }
+    window.location.assign(url.toString());
+};
+
 const updateUI = async () => {
     const isAuthenticated = await authClient.isAuthenticated();
 
@@ -29,7 +43,7 @@ const updateUI = async () => {
         if (logoutButton) {
             logoutButton.hidden = false;
         }
-        return;
+        return true;
     }
 
     setStatus("");
@@ -44,6 +58,8 @@ const updateUI = async () => {
     if (logoutButton) {
         logoutButton.hidden = true;
     }
+
+    return false;
 };
 
 const login = async () => {
@@ -53,6 +69,7 @@ const login = async () => {
         maxTimeToLive: MAX_TTL,
         onSuccess: async () => {
             await updateUI();
+            goToMain();
         },
         onError: (err) => {
             console.error(err);
@@ -70,7 +87,10 @@ const init = async () => {
     authClient = await AuthClient.create();
     loginButtons.forEach((btn) => btn.addEventListener("click", login));
     logoutButton?.addEventListener("click", logout);
-    await updateUI();
+    const isAuthenticated = await updateUI();
+    if (isAuthenticated) {
+        goToMain();
+    }
 };
 
 init();

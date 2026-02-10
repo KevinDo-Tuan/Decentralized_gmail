@@ -14,5 +14,12 @@
   },
   "workspaces": [
     "src/my_motoko_project_frontend/assets"
-  ]
+  ],
+  "dependencies": {
+    "@dfinity/agent": "^3.4.3",
+    "@dfinity/auth-client": "^3.4.3",
+    "@dfinity/identity": "^3.4.3",
+    "@dfinity/principal": "^3.4.3",
+    "esbuild": "^0.27.3"
+  }
 }
