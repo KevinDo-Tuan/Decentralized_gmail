@@ -181,14 +181,15 @@ body {
     box-shadow: var(--shadow-sm);
 }
 .btn-secondary {
-    background: rgba(5, 119, 24, 0.712);
+    background: rgb(255, 255, 255);
     color: var(--color-primary);
-    border: 3px solid var(--color-primary);
+    border: 10px solid rgb(0, 0, 0);
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.9);
 }
 
 .btn-secondary:hover {
     background: var(--color-primary);
-    color: oklab(69.451% -0.11407 -0.03018 / 0.459);
+    color: oklab(100% 0 -0.00011);
     transform: translateY(-3px);
 }
 .hero-title {

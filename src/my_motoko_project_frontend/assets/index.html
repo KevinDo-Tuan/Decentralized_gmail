@@ -1,12 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta http-equiv="refresh" content="0; url=/home.html" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tuamess</title>
-</head>
-<body>
-  <p>I am directing <a href="/home.html">Please wait for a moment sir</a>...</p>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#14091f" />
+    <title>Tuamess</title>
+    <link rel="stylesheet" href="intro.css" />
+  </head>
+  <body class="intro">
+    <main class="stage" aria-label="Intro animation">
+      <canvas id="flow" class="flow" aria-hidden="true"></canvas>
+      <div class="overlay"></div>
+      <div class="logo">
+        <span class="logo-mark">T</span>
+        <span class="logo-text">Tuamess</span>
+      </div>
+      <div class="tagline">Crafting the calm before the storm.</div>
+      <div class="loader" aria-hidden="true">
+        <span></span><span></span><span></span>
+      </div>
+      <button class="skip" type="button">Skip</button>
+    </main>
+    <script src="intro.js"></script>
+  </body>
 </html>
