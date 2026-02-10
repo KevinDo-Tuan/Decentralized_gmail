@@ -193,13 +193,13 @@ body {
     animation-delay: 0.4s;
     font-size: 0.8em;
     font-weight: 700;
-    margin-top: 0.5rem;
+    margin-top: 2rem;
     
 }
 
 .hero-title .highlight { 
 
-    font-weight: 700; 
+font-weight: 700; 
 font-style: italic; 
 background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%); 
 -webkit-background-clip: text; -webkit-text-fill-color: transparent;
@@ -241,9 +241,9 @@ background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
 
 .btn-primary {
     background: white;
-    color: rgb(12, 1, 1);
-    padding: 20px 110px;
-    font-size: 1.05rem;
+    color: var(--color-text-light);
+    padding: 20px 50px;
+    font-size: 1rem;
     border: 3px solid var(--color-primary);
     box-shadow: 0 10px 30px rgb(238, 42, 42)  ;
 
