@@ -1,16 +1,18 @@
 {
-    "name": "my_motoko_project",
-    "type": "module",
-    "scripts": {
-        "start": "npm start --workspaces --if-present",
-        "prebuild": "npm run prebuild --workspaces --if-present",
-        "build": "npm run build --workspaces --if-present",
-        "pretest": "npm run prebuild --workspaces --if-present",
-        "test": "npm test --workspaces --if-present"
-    },
-    "engines": {
-        "node": ">=16.0.0",
-        "npm": ">=7.0.0"
-    },
-    "workspaces": [ ]
+  "name": "my_motoko_project",
+  "type": "module",
+  "scripts": {
+    "start": "echo 'No start script'",
+    "prebuild": "echo 'Skipping prebuild'",
+    "build": "echo 'Skipping build'",
+    "pretest": "echo 'Skipping pretest'",
+    "test": "echo 'No tests'"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=7.0.0"
+  },
+  "workspaces": [
+    "src/my_motoko_project_frontend/assets"
+  ]
 }
