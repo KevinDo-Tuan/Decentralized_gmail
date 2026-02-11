@@ -46,6 +46,10 @@ export default function IntroSplash({ onComplete }: IntroSplashProps) {
     transform: `translate(${(mousePos.x - 0.5) * strength}px, ${(mousePos.y - 0.5) * strength}px)`,
   });
 
+  const combineTransforms = (primary: string, parallaxStrength: number) => ({
+    transform: `${primary} translate(${(mousePos.x - 0.5) * parallaxStrength}px, ${(mousePos.y - 0.5) * parallaxStrength}px)`,
+  });
+
   return (
     <div
       ref={containerRef}
@@ -71,9 +75,8 @@ export default function IntroSplash({ onComplete }: IntroSplashProps) {
             "radial-gradient(circle at 40% 40%, hsl(348 100% 85% / 0.4), hsl(348 100% 60% / 0.15) 50%, transparent 70%)",
           filter: "blur(60px)",
           opacity: phase >= 2 ? 1 : 0,
-          transform: `scale(${phase >= 2 ? 1 : 0.3})`,
+          ...combineTransforms(`scale(${phase >= 2 ? 1 : 0.3})`, 20),
           transition: "opacity 1.8s ease, transform 2s cubic-bezier(0.34, 1.56, 0.64, 1)",
-          ...parallax(20),
         }}
         aria-hidden="true"
       />

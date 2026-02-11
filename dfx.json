@@ -10,7 +10,7 @@
         "my_motoko_project_backend"
       ],
       "source": [
-        "src/my_motoko_project_frontend/assets"
+        "src/my_motoko_project_frontend/assets/homepage/out"
       ],
       "type": "assets"
     }

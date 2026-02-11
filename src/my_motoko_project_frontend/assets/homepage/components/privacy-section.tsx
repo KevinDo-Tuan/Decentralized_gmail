@@ -341,10 +341,8 @@ export default function PrivacySection() {
             data-animate
             className="opacity-0 animate-on-scroll font-serif text-4xl md:text-5xl lg:text-6xl font-light text-foreground text-balance"
           >
-            Privacy is not a feature.
-            <br />
             <span className="font-semibold italic" style={{ color: "hsl(var(--accent))" }}>
-              {"It's the foundation."}
+              {"Your privacy is our priority."}
             </span>
           </h2>
         </div>
@@ -493,7 +491,7 @@ export default function PrivacySection() {
               icon: (
                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10" />
               ),
-              title: "Zero-Knowledge",
+              title: "Credibility",
               desc: "We can never read your data. By design, not by promise.",
             },
             {
@@ -503,7 +501,7 @@ export default function PrivacySection() {
                   <path d="m9 12 2 2 4-4" />
                 </>
               ),
-              title: "On-Chain Verified",
+              title: "Transparency",
               desc: "Every encryption event is logged on-chain for full transparency.",
             },
             {
@@ -513,7 +511,7 @@ export default function PrivacySection() {
                   <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                 </>
               ),
-              title: "User-Owned Keys",
+              title: "Privacy",
               desc: "Only you hold the keys. Not us, not anyone else.",
             },
           ].map((item, i) => (

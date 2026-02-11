@@ -1,8 +1,8 @@
 :root {
     --color-primary: #0f0f0f;
     --color-secondary: #f5f5f5;
-    --color-accent: #667eea;
-    --color-accent-2: #764ba2;
+    --color-accent:  rgb(238, 90, 111);
+    --color-accent-2:  rgb(238, 90, 111);
     --color-success: #10b981;
     --color-warning: #f59e0b;
     --color-text: #1a1a1a;
@@ -261,7 +261,7 @@ body {
 .btn-primary:hover {
     background: var(--color-accent);
     transform: translateY(-3px);
-    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 10px 30px  rgb(238, 90, 111);
 }
 
 
@@ -645,7 +645,7 @@ body {
 
 .award-card:hover {
     transform: translateY(-10px);
-    box-shadow: 0 20px 60px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 20px 60px  rgb(238, 90, 111);
 }
 
 .award-icon {
