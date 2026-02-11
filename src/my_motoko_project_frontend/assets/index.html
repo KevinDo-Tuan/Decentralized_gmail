@@ -3,23 +3,30 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#14091f" />
-    <title>Tuamess</title>
+    <meta name="theme-color" content="#faf9f7" />
+    <title>Tuams — Bringing the New World</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="intro.css" />
   </head>
   <body class="intro">
-    <main class="stage" aria-label="Intro animation">
-      <canvas id="flow" class="flow" aria-hidden="true"></canvas>
-      <div class="overlay"></div>
-      <div class="logo">
-        <span class="logo-mark">T</span>
-        <span class="logo-text">Tuamess</span>
+    <main class="stage" aria-label="Welcome experience">
+      <canvas id="words" class="words-canvas" aria-hidden="true"></canvas>
+      
+      <div class="content-wrapper">
+        <h1 class="logo-text">
+          <span class="logo-main">TUAMS</span>
+        </h1>
+        <p class="tagline">Bringing the new world</p>
       </div>
-      <div class="tagline">Crafting the calm before the storm.</div>
-      <div class="loader" aria-hidden="true">
-        <span></span><span></span><span></span>
-      </div>
-      <button class="skip" type="button">Skip</button>
+      
+      <button class="skip" type="button" aria-label="Skip intro">
+        <span>Skip</span>
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+          <path d="M6 12L10 8L6 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
     </main>
     <script src="intro.js"></script>
   </body>

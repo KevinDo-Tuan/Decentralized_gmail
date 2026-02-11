@@ -1,90 +1,219 @@
 (() => {
-  const canvas = document.getElementById("flow");
+  const canvas = document.getElementById("words");
   const ctx = canvas.getContext("2d", { alpha: true });
 
   const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const redirectUrl = "home.html";
-  const baseDuration = 6200;
-  const exitDuration = 700;
-  const totalDelay = prefersReduced ? 200 : baseDuration;
+  const formationDuration = 3500; // Particles forming shapes
+  const holdDuration = 1000; // Hold the formation
+  const disperseDuration = 800; // Disperse elegantly
+  const totalDuration = 7000;
+  const exitDuration = 800;
 
   let width = 0;
   let height = 0;
   let centerX = 0;
   let centerY = 0;
-  let frame = 0;
   let running = true;
-
-  const palette = [
-    [255, 154, 61],
-    [176, 119, 255],
-    [255, 107, 45],
-    [200, 140, 255],
-  ];
-
-  const config = {
-    particleCount: prefersReduced ? 120 : 650,
-    speed: prefersReduced ? 0.35 : 0.9,
-    fade: prefersReduced ? 0.16 : 0.08,
-    noiseScale: 0.0017,
-    curlStrength: 2.4,
-  };
+  let startTime = Date.now();
+  let phase = "forming"; // "forming" -> "holding" -> "dispersing" -> "complete"
 
   const particles = [];
+  
+  // Elegant color palette - soft pastels with depth
+  const colors = [
+    { r: 255, g: 182, b: 193, name: 'light-pink' },     // Light pink
+    { r: 221, g: 160, b: 221, name: 'plum' },           // Plum
+    { r: 255, g: 218, b: 185, name: 'peach' },          // Peach
+    { r: 176, g: 224, b: 230, name: 'powder-blue' },    // Powder blue
+    { r: 255, g: 228, b: 196, name: 'bisque' },         // Bisque
+    { r: 230, g: 190, b: 255, name: 'lavender' },       // Lavender
+    { r: 255, g: 200, b: 221, name: 'cherry' },         // Cherry blossom
+    { r: 200, g: 220, b: 255, name: 'periwinkle' },     // Periwinkle
+  ];
 
-  const hash = (x, y) => {
-    const s = Math.sin(x * 127.1 + y * 311.7) * 43758.5453;
-    return s - Math.floor(s);
-  };
+  // Letter formations using particles
+  // Simplified abstract pattern that suggests movement and connection
+  const formationPatterns = [
+    // Creates flowing, organic shapes
+    { x: -0.3, y: 0, type: 'cluster' },
+    { x: -0.15, y: -0.1, type: 'cluster' },
+    { x: 0, y: 0, type: 'cluster' },
+    { x: 0.15, y: -0.1, type: 'cluster' },
+    { x: 0.3, y: 0, type: 'cluster' },
+    // Additional flowing points
+    { x: -0.2, y: 0.15, type: 'flow' },
+    { x: 0, y: 0.2, type: 'flow' },
+    { x: 0.2, y: 0.15, type: 'flow' },
+    // Orbiting particles
+    { x: -0.35, y: -0.15, type: 'orbit' },
+    { x: 0.35, y: -0.15, type: 'orbit' },
+  ];
 
-  const noise = (x, y) => {
-    const x0 = Math.floor(x);
-    const y0 = Math.floor(y);
-    const xf = x - x0;
-    const yf = y - y0;
-
-    const a = hash(x0, y0);
-    const b = hash(x0 + 1, y0);
-    const c = hash(x0, y0 + 1);
-    const d = hash(x0 + 1, y0 + 1);
-
-    const u = xf * xf * (3 - 2 * xf);
-    const v = yf * yf * (3 - 2 * yf);
-
-    return a * (1 - u) * (1 - v) + b * u * (1 - v) + c * (1 - u) * v + d * u * v;
-  };
-
-  const curl = (x, y) => {
-    const eps = 0.0008;
-    const n1 = noise(x, y + eps);
-    const n2 = noise(x, y - eps);
-    const n3 = noise(x + eps, y);
-    const n4 = noise(x - eps, y);
-    const dx = (n1 - n2) / (2 * eps);
-    const dy = (n3 - n4) / (2 * eps);
-    return { x: dy, y: -dx };
-  };
-
-  const pick = () => palette[Math.floor(Math.random() * palette.length)];
-
-  const resetParticle = (p, edge = false) => {
-    const angle = Math.random() * Math.PI * 2;
-    const radius = edge ? Math.max(width, height) * 0.55 : Math.random() * Math.min(width, height) * 0.45;
-    p.x = centerX + Math.cos(angle) * radius;
-    p.y = centerY + Math.sin(angle) * radius;
-    p.vx = 0;
-    p.vy = 0;
-    p.life = 0;
-    p.ttl = 80 + Math.random() * 140;
-    p.color = pick();
-  };
+  class Particle {
+    constructor(index) {
+      this.index = index;
+      
+      // Random start position
+      const angle = Math.random() * Math.PI * 2;
+      const radius = Math.min(width, height) * (0.3 + Math.random() * 0.4);
+      this.x = centerX + Math.cos(angle) * radius;
+      this.y = centerY + Math.sin(angle) * radius;
+      
+      // Choose a formation target
+      const pattern = formationPatterns[index % formationPatterns.length];
+      const spread = 80; // How spread out the formation is
+      this.targetX = centerX + pattern.x * spread + (Math.random() - 0.5) * 20;
+      this.targetY = centerY + pattern.y * spread + (Math.random() - 0.5) * 20;
+      this.formationType = pattern.type;
+      
+      // Velocity
+      this.vx = 0;
+      this.vy = 0;
+      
+      // Visual properties
+      this.color = colors[Math.floor(Math.random() * colors.length)];
+      this.size = 3 + Math.random() * 4;
+      this.opacity = 0;
+      this.baseOpacity = 0.4 + Math.random() * 0.4;
+      
+      // Animation properties
+      this.appearDelay = Math.random() * 1000;
+      this.hasAppeared = false;
+      this.pulseOffset = Math.random() * Math.PI * 2;
+      this.orbitAngle = Math.random() * Math.PI * 2;
+      this.orbitSpeed = (Math.random() - 0.5) * 0.02;
+      this.orbitRadius = 5 + Math.random() * 10;
+    }
+    
+    update(elapsed) {
+      // Handle appearance delay
+      if (!this.hasAppeared && elapsed > this.appearDelay) {
+        this.hasAppeared = true;
+      }
+      
+      if (!this.hasAppeared) {
+        return;
+      }
+      
+      const localElapsed = elapsed - this.appearDelay;
+      
+      if (phase === "forming") {
+        // Smooth fade in
+        this.opacity = Math.min(this.baseOpacity, localElapsed / 1200);
+        
+        // Move toward formation target
+        const dx = this.targetX - this.x;
+        const dy = this.targetY - this.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        
+        if (distance > 1) {
+          const progress = Math.min(1, localElapsed / formationDuration);
+          const easing = 1 - Math.pow(1 - progress, 3); // Ease out
+          
+          const force = 0.03 + easing * 0.08;
+          this.vx += dx * force;
+          this.vy += dy * force;
+          
+          // Damping
+          this.vx *= 0.92;
+          this.vy *= 0.92;
+          
+          this.x += this.vx;
+          this.y += this.vy;
+        }
+        
+        // Gentle pulsing
+        const pulse = Math.sin(localElapsed * 0.003 + this.pulseOffset) * 0.2 + 0.8;
+        this.currentOpacity = this.opacity * pulse;
+        
+      } else if (phase === "holding") {
+        // Subtle breathing motion in formation
+        this.orbitAngle += this.orbitSpeed;
+        
+        const orbitX = Math.cos(this.orbitAngle) * this.orbitRadius;
+        const orbitY = Math.sin(this.orbitAngle) * this.orbitRadius;
+        
+        this.x = this.targetX + orbitX;
+        this.y = this.targetY + orbitY;
+        
+        // Gentle pulsing continues
+        const pulse = Math.sin(elapsed * 0.003 + this.pulseOffset) * 0.15 + 0.85;
+        this.currentOpacity = this.opacity * pulse;
+        
+      } else if (phase === "dispersing") {
+        // Elegant dispersion
+        const disperseProgress = (elapsed - formationDuration - holdDuration) / disperseDuration;
+        
+        // Fade out
+        this.opacity = this.baseOpacity * (1 - disperseProgress);
+        this.currentOpacity = this.opacity;
+        
+        // Gentle outward movement
+        const dx = this.x - centerX;
+        const dy = this.y - centerY;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        
+        if (distance > 0.1) {
+          this.x += (dx / distance) * 2;
+          this.y += (dy / distance) * 2;
+        }
+        
+        // Shrink
+        this.currentSize = this.size * (1 - disperseProgress * 0.5);
+      }
+    }
+    
+    draw() {
+      if (!this.hasAppeared || this.currentOpacity <= 0) return;
+      
+      const { r, g, b } = this.color;
+      
+      // Soft glow
+      ctx.shadowBlur = 15;
+      ctx.shadowColor = `rgba(${r}, ${g}, ${b}, ${this.currentOpacity * 0.6})`;
+      
+      // Main particle
+      ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${this.currentOpacity})`;
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.currentSize || this.size, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // Inner glow
+      ctx.fillStyle = `rgba(255, 255, 255, ${this.currentOpacity * 0.4})`;
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, (this.currentSize || this.size) * 0.4, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    
+    drawConnection(other) {
+      if (!this.hasAppeared || !other.hasAppeared) return;
+      
+      const dx = other.x - this.x;
+      const dy = other.y - this.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      
+      // Only draw connections within a certain distance
+      if (distance < 80 && phase === "holding") {
+        const { r, g, b } = this.color;
+        const opacity = (1 - distance / 80) * 0.15 * this.currentOpacity;
+        
+        ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, ${opacity})`;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(this.x, this.y);
+        ctx.lineTo(other.x, other.y);
+        ctx.stroke();
+      }
+    }
+  }
 
   const createParticles = () => {
     particles.length = 0;
-    for (let i = 0; i < config.particleCount; i += 1) {
-      const p = {};
-      resetParticle(p, true);
-      particles.push(p);
+    // Create enough particles for a beautiful formation
+    const particleCount = 150;
+    for (let i = 0; i < particleCount; i++) {
+      particles.push(new Particle(i));
     }
   };
 
@@ -101,80 +230,96 @@
     ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
   };
 
-  const step = () => {
+  const animate = () => {
     if (!running) return;
-    frame += 1;
-
-    ctx.fillStyle = `rgba(10, 5, 18, ${config.fade})`;
+    
+    const elapsed = Date.now() - startTime;
+    
+    // Phase transitions
+    if (elapsed > formationDuration && phase === "forming") {
+      phase = "holding";
+    }
+    if (elapsed > formationDuration + holdDuration && phase === "holding") {
+      phase = "dispersing";
+      // Reveal the TUAMS logo
+      document.querySelector('.content-wrapper').classList.add('revealed');
+    }
+    if (elapsed > formationDuration + holdDuration + disperseDuration && phase === "dispersing") {
+      phase = "complete";
+    }
+    
+    // Clear with subtle trail
+    ctx.fillStyle = "rgba(250, 249, 247, 0.12)";
     ctx.fillRect(0, 0, width, height);
-
-    for (const p of particles) {
-      const nx = p.x * config.noiseScale;
-      const ny = p.y * config.noiseScale;
-      const flow = curl(nx, ny);
-      const pullX = (centerX - p.x) * 0.0004;
-      const pullY = (centerY - p.y) * 0.0004;
-
-      p.vx += (flow.x * config.curlStrength + pullX) * config.speed;
-      p.vy += (flow.y * config.curlStrength + pullY) * config.speed;
-
-      p.x += p.vx;
-      p.y += p.vy;
-
-      const [r, g, b] = p.color;
-      ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, 0.6)`;
-      ctx.lineWidth = 1.1;
-
-      ctx.beginPath();
-      ctx.moveTo(p.x, p.y);
-      ctx.lineTo(p.x - p.vx * 1.3, p.y - p.vy * 1.3);
-      ctx.stroke();
-
-      p.life += 1;
-
-      if (p.life > p.ttl || p.x < -50 || p.x > width + 50 || p.y < -50 || p.y > height + 50) {
-        resetParticle(p, true);
+    
+    // Draw connections first (behind particles)
+    if (phase === "holding") {
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          particles[i].drawConnection(particles[j]);
+        }
       }
     }
-
-    requestAnimationFrame(step);
+    
+    // Update and draw particles
+    particles.forEach(particle => {
+      particle.update(elapsed);
+      particle.draw();
+    });
+    
+    requestAnimationFrame(animate);
   };
 
   const boot = () => {
     resize();
-    createParticles();
-    ctx.fillStyle = "#0e0718";
+    
+    // Initial clear background
+    ctx.fillStyle = "#faf9f7";
     ctx.fillRect(0, 0, width, height);
-    step();
+    
+    createParticles();
+    animate();
   };
 
   const redirect = () => {
     if (!running) return;
     running = false;
     document.body.classList.add("finish");
-    window.setTimeout(() => {
+    
+    setTimeout(() => {
       window.location.href = redirectUrl;
     }, prefersReduced ? 0 : exitDuration);
   };
 
-  window.setTimeout(redirect, totalDelay);
+  // Auto-redirect
+  setTimeout(redirect, prefersReduced ? 500 : totalDuration);
 
+  // Skip button
   const skip = document.querySelector(".skip");
   if (skip) {
     skip.addEventListener("click", redirect);
   }
 
+  // Keyboard shortcuts
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape" || event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
       redirect();
     }
   });
 
-  window.addEventListener("resize", resize);
+  // Handle resize
+  window.addEventListener("resize", () => {
+    resize();
+    centerX = width * 0.5;
+    centerY = height * 0.5;
+  });
 
   if (prefersReduced) {
-    canvas.style.opacity = "0.5";
+    // Skip animation for reduced motion
+    document.querySelector('.content-wrapper').classList.add('revealed');
+    setTimeout(redirect, 500);
+  } else {
+    boot();
   }
-
-  boot();
 })();
