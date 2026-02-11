@@ -364,7 +364,7 @@ export default function IntroSplash({ onComplete }: IntroSplashProps) {
               color: "hsl(var(--foreground))",
             }}
           >
-            <span>Explore</span>
+            <span>Join</span>
             <svg
               width="16"
               height="16"

@@ -1,15 +1,26 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { MessageSquare, ImageIcon, BarChart3, ArrowRight } from "lucide-react";
+import { loginWithInternetIdentity } from "@/lib/internet-identity";
 
-const SERVICES = [
+type Service = {
+  icon: typeof MessageSquare;
+  title: string;
+  description: string;
+  link: string;
+  requiresInternetIdentity?: boolean;
+};
+
+const SERVICES: Service[] = [
   {
     icon: MessageSquare,
     title: "Tuamail",
     description:
       "100% on-chain. Have the rights over your email with full encryption and ownership.",
-    link: "#",
+    link: "/tuamail",
+    requiresInternetIdentity: true,
   },
   {
     icon: ImageIcon,
@@ -27,8 +38,38 @@ const SERVICES = [
   },
 ];
 
+function askForAnchorNumber(): bigint {
+  const rawValue = window.prompt("Enter your Internet Identity anchor number:");
+  if (!rawValue) {
+    throw new Error("Action cancelled.");
+  }
+
+  const value = rawValue.trim();
+  if (!/^\d+$/.test(value)) {
+    throw new Error("Internet Identity anchor number must contain only digits.");
+  }
+
+  return BigInt(value);
+}
+
+function askForEmail(defaultEmail: string): string {
+  const rawValue = window.prompt("Enter your email address:", defaultEmail);
+  if (!rawValue) {
+    throw new Error("Action cancelled.");
+  }
+
+  const email = rawValue.trim().toLowerCase();
+  if (!email.includes("@")) {
+    throw new Error("Please provide a valid email address.");
+  }
+
+  return email;
+}
+
 export default function ServicesSection() {
   const sectionRef = useRef<HTMLElement>(null);
+  const router = useRouter();
+  const [pendingService, setPendingService] = useState<string | null>(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -46,6 +87,48 @@ export default function ServicesSection() {
     elements?.forEach((el) => observer.observe(el));
     return () => observer.disconnect();
   }, []);
+
+  const handleTryIt = async (service: Service) => {
+    if (!service.requiresInternetIdentity || service.link === "#") {
+      window.alert("This service is coming soon.");
+      return;
+    }
+
+    setPendingService(service.title);
+
+    try {
+      const session = await loginWithInternetIdentity();
+      const previousEmail = window.localStorage.getItem("tuamail_email") ?? "";
+      const anchorNumber = askForAnchorNumber();
+      const email = askForEmail(previousEmail);
+      const checkResult = await session.checkAndSaveIdentity(anchorNumber, email);
+
+      window.localStorage.setItem("tuamail_email", email);
+      window.localStorage.setItem(
+        "tuamail_login_context",
+        JSON.stringify({
+          anchorNumber: anchorNumber.toString(),
+          email,
+          principal: session.principal,
+          existedBefore: checkResult.existed_before,
+          loginCount: checkResult.record.login_count.toString(),
+          firstLoginAtNs: checkResult.record.first_login_at_ns.toString(),
+          lastLoginAtNs: checkResult.record.last_login_at_ns.toString(),
+        })
+      );
+
+      router.push(service.link);
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Unable to complete Internet Identity login.";
+
+      if (message !== "Action cancelled.") {
+        window.alert(message);
+      }
+    } finally {
+      setPendingService(null);
+    }
+  };
 
   return (
     <section ref={sectionRef} id="services" className="py-24">
@@ -91,13 +174,15 @@ export default function ServicesSection() {
                 {service.description}
               </p>
 
-              <a
-                href={service.link}
+              <button
+                type="button"
+                onClick={() => void handleTryIt(service)}
+                disabled={pendingService === service.title}
                 className="inline-flex items-center gap-2 text-accent font-medium text-sm transition-all duration-300 hover:gap-3"
               >
-                Try it
+                {pendingService === service.title ? "Connecting..." : "Try it"}
                 <ArrowRight className="w-4 h-4" />
-              </a>
+              </button>
             </div>
           ))}
         </div>

@@ -1,3 +1,18 @@
+type UserRecord = record {
+  "anchor_number" : nat64;
+  "email" : text;
+  "principal" : text;
+  "first_login_at_ns" : nat64;
+  "last_login_at_ns" : nat64;
+  "login_count" : nat64;
+};
+type LoginCheckResult = record {
+  "existed_before" : bool;
+  "record" : UserRecord;
+};
+type LoginResult = variant { "Ok" : LoginCheckResult; "Err" : text };
 service : {
-    "greet": (text) -> (text) query;
+  "check_and_save_identity" : (nat64, text) -> (LoginResult);
+  "get_user" : (nat64) -> (opt UserRecord) query;
+  "greet" : (text) -> (text) query;
 }
