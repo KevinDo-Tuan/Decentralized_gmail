@@ -6,9 +6,9 @@ import { MessageSquare, ImageIcon, BarChart3, ArrowRight } from "lucide-react";
 const SERVICES = [
   {
     icon: MessageSquare,
-    title: "Tuamess",
+    title: "Tuamail",
     description:
-      "100% on-chain. Have the rights over your messages with full encryption and ownership.",
+      "100% on-chain. Have the rights over your email with full encryption and ownership.",
     link: "#",
   },
   {

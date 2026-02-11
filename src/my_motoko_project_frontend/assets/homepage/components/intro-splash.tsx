@@ -257,7 +257,7 @@ export default function IntroSplash({ onComplete }: IntroSplashProps) {
             transition: "opacity 0.8s ease, transform 0.8s ease",
           }}
         >
-          est. 2024
+          est. 2025
         </span>
 
         {/* TUAMS text — staggered character reveal with clip mask */}
