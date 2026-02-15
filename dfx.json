@@ -5,12 +5,18 @@
       "package": "my_motoko_project_backend",
       "type": "rust"
     },
+    "internet_identity": {
+      "type": "custom",
+      "candid": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity.did",
+      "wasm": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity_dev.wasm.gz",
+      "specified_id": "rdmx6-jaaaa-aaaaa-aaadq-cai"
+    },
     "my_motoko_project_frontend": {
       "dependencies": [
         "my_motoko_project_backend"
       ],
       "source": [
-        "src/my_motoko_project_frontend/assets/homepage/out"
+        "src/my_motoko_project_frontend/assets/out"
       ],
       "type": "assets"
     }

@@ -1,18 +1,27 @@
-type UserRecord = record {
-  "anchor_number" : nat64;
-  "email" : text;
-  "principal" : text;
-  "first_login_at_ns" : nat64;
-  "last_login_at_ns" : nat64;
-  "login_count" : nat64;
+type User = record {
+  user_principal : principal;
+  created_at : nat64;
+  role : text;
 };
-type LoginCheckResult = record {
-  "existed_before" : bool;
-  "record" : UserRecord;
+
+type Email = record {
+  sender : principal;
+  receiver : principal;
+  subject : text;
+  body : text;
+  timestamp : nat64;
+  read : bool;
 };
-type LoginResult = variant { "Ok" : LoginCheckResult; "Err" : text };
+
+type GetOrCreateUserResult = record {
+  user : User;
+  is_new_user : bool;
+};
+
 service : {
-  "check_and_save_identity" : (nat64, text) -> (LoginResult);
-  "get_user" : (nat64) -> (opt UserRecord) query;
-  "greet" : (text) -> (text) query;
-}
+  get_or_create_user : () -> (variant { Ok : GetOrCreateUserResult; Err : text });
+  send_email : (principal, text, text) -> (variant { Ok : Email; Err : text });
+  get_my_inbox : () -> (variant { Ok : vec Email; Err : text }) query;
+  get_my_sent_mail : () -> (variant { Ok : vec Email; Err : text }) query;
+  mark_as_read : (principal, nat64) -> (variant { Ok : bool; Err : text });
+};

@@ -1,60 +1,138 @@
-# `my_motoko_project`
+# Tuams
 
-Welcome to your new `my_motoko_project` project and to the Internet Computer development community. By default, creating a new project adds this README and some template files to your project directory. You can edit these template files to customize your project and to include your own code to speed up the development cycle.
+A decentralized email and messaging application built on the [Internet Computer](https://internetcomputer.org/) (ICP) blockchain. Tuams provides privacy-first communication through on-chain storage and Internet Identity authentication — no centralized servers, no data harvesting.
 
-To get started, you might want to explore the project directory structure and the default configuration file. Working with this project in your development environment will not affect any production deployment or identity tokens.
+## Features
 
-To learn more before you start working with `my_motoko_project`, see the following documentation available online:
+### Email
+- Send and receive emails between ICP principals
+- Inbox with unread tracking, sent mail folder, and starred emails
+- Compose dialog with subject and body fields
+- Mark as read and star/unstar functionality
 
-- [Quick Start](https://internetcomputer.org/docs/current/developer-docs/setup/deploy-locally)
-- [SDK Developer Tools](https://internetcomputer.org/docs/current/developer-docs/setup/install)
-- [Rust Canister Development Guide](https://internetcomputer.org/docs/current/developer-docs/backend/rust/)
-- [ic-cdk](https://docs.rs/ic-cdk)
-- [Candid Introduction](https://internetcomputer.org/docs/building-apps/interact-with-canisters/candid/candid-concepts)
+### Chat
+- Real-time messaging between principals
+- Chat list with last message preview and unread counts
+- New chat initialization with any principal ID
 
-If you want to start working on your project right away, you might want to try the following commands:
+### Reminders
+- Set reminders on emails with quick presets (30 min, 1 hour, 3 hours, tomorrow 9 AM)
+- Toast notifications when reminders are due
+- Cancel and dismiss reminders
+
+### Authentication
+- Internet Identity integration for passwordless, Web3 authentication
+- Principal-based user identification
+- Automatic user creation on first login
+
+## Tech Stack
+
+**Backend**
+- Rust smart contract (canister) on ICP
+- `ic-cdk` 0.18 / `candid` 0.10 / `ic-cdk-timers` 0.12
+- Stable storage for upgrade persistence
+
+**Frontend**
+- React 19 + Next.js 16 (static export)
+- TypeScript + Tailwind CSS
+- Radix UI component library
+- React Hook Form + Zod validation
+
+**Blockchain**
+- `@dfinity/agent`, `@dfinity/auth-client`, `@dfinity/principal`
+- Internet Identity for authentication
+- DFX 0.30+ for local development and deployment
+
+## Prerequisites
+
+- [Node.js](https://nodejs.org/) >= 16.0.0
+- [Rust](https://www.rust-lang.org/tools/install) with `wasm32-unknown-unknown` target
+- [DFX SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install) >= 0.30
+- [pnpm](https://pnpm.io/) (for frontend dependencies)
+
+## Getting Started
+
+### 1. Clone the repository
 
 ```bash
-cd my_motoko_project/
-dfx help
-dfx canister --help
+git clone https://github.com/<your-username>/Tuams.git
+cd Tuams
 ```
 
-## Running the project locally
-
-If you want to test your project locally, you can use the following commands:
+### 2. Install dependencies
 
 ```bash
-# Starts the replica, running in the background
-dfx start --background
+# Root dependencies
+npm install
 
-# Deploys your canisters to the replica and generates your candid interface
+# Frontend dependencies
+cd src/my_motoko_project_frontend/assets
+pnpm install
+cd ../../..
+```
+
+### 3. Start the local ICP replica
+
+```bash
+dfx start --background
+```
+
+### 4. Deploy canisters
+
+```bash
 dfx deploy
 ```
 
-Once the job completes, your application will be available at `http://localhost:4943?canisterId={asset_canister_id}`.
+This will:
+- Compile the Rust backend canister
+- Download and deploy the Internet Identity canister locally
+- Deploy the frontend assets canister
 
-If you have made changes to your backend canister, you can generate a new candid interface with
-
-```bash
-npm run generate
-```
-
-at any time. This is recommended before starting the frontend development server, and will be run automatically any time you run `dfx deploy`.
-
-If you are making frontend changes, you can start a development server with
+### 5. Build the frontend
 
 ```bash
-npm start
+cd src/my_motoko_project_frontend/assets
+pnpm run build
+cd ../../..
 ```
 
-Which will start a server at `http://localhost:8080`, proxying API requests to the replica at port 4943.
+### 6. Access the application
 
-### Note on frontend environment variables
+Once deployed, the app will be available at:
 
-If you are hosting frontend code somewhere without using DFX, you may need to make one of the following adjustments to ensure your project does not fetch the root key in production:
+```
+http://localhost:4943?canisterId={frontend_canister_id}
+```
 
-- set`DFX_NETWORK` to `ic` if you are using Webpack
-- use your own preferred method to replace `process.env.DFX_NETWORK` in the autogenerated declarations
-  - Setting `canisters -> {asset_canister_id} -> declarations -> env_override to a string` in `dfx.json` will replace `process.env.DFX_NETWORK` with the string in the autogenerated declarations
-- Write your own `createActor` constructor
+The canister IDs are printed after `dfx deploy` and saved to the `.env` file.
+
+## Project Structure
+
+```
+Tuams/
+├── dfx.json                          # DFX canister configuration
+├── Cargo.toml                        # Rust workspace config
+├── package.json                      # Root npm config
+├── src/
+│   ├── my_motoko_project_backend/    # Rust backend canister
+│   │   ├── src/lib.rs                # Main canister logic
+│   │   ├── Cargo.toml                # Rust dependencies
+│   │   └── *.did                     # Candid interface
+│   └── my_motoko_project_frontend/
+│       └── assets/                   # Next.js frontend app
+│           ├── app/                  # Next.js pages & layouts
+│           ├── components/           # React components
+│           ├── lib/                  # Utilities & hooks
+│           ├── package.json          # Frontend dependencies
+│           └── tailwind.config.ts    # Tailwind configuration
+```
+
+## Architecture
+
+All data is stored **on-chain** in the backend canister using thread-local `HashMap` storage with `RefCell`. Data persists across canister upgrades via pre/post-upgrade hooks with stable storage serialization.
+
+The frontend is a statically exported Next.js app served as an ICP asset canister. It communicates with the backend canister through the `@dfinity/agent` library and authenticates users via Internet Identity.
+
+## License
+
+This project is open source. See the [LICENSE](LICENSE) file for details.
